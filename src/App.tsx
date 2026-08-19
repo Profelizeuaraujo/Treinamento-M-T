@@ -5,7 +5,9 @@ import { MouseGame } from './components/MouseGame';
 import { KeyboardGame } from './components/KeyboardGame';
 import { AdminDashboard } from './components/AdminDashboard';
 import { User, GameMode, ScoreEntry } from './types';
-import { Settings, LogOut } from 'lucide-react';
+import { LogOut } from 'lucide-react';
+import { db } from './lib/firebase';
+import { doc, setDoc, deleteDoc, collection, addDoc } from 'firebase/firestore';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -18,34 +20,42 @@ export default function App() {
     
     const ping = async () => {
       try {
-        await fetch('/api/active_users', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            id: currentUser.id,
-            name: currentUser.name,
-            game: activeMode === 'mouse' ? 'Treino de Mouse' : activeMode === 'keyboard' ? 'Treino de Teclado' : 'Selecionando Jogo'
-          })
-        });
+        const userRef = doc(db, 'activeUsers', currentUser.id);
+        await setDoc(userRef, {
+          id: currentUser.id,
+          name: currentUser.name,
+          game: activeMode === 'mouse' ? 'Treino de Mouse' : activeMode === 'keyboard' ? 'Treino de Teclado' : 'Selecionando Jogo',
+          startTime: new Date().toISOString(), // In a real app we'd keep the original start time
+          lastSeen: new Date().toISOString(),
+          timestamp: Date.now()
+        }, { merge: true });
       } catch (e) {
         console.error("Ping failed", e);
       }
     };
     
     ping();
-    const interval = setInterval(ping, 3000);
-    return () => clearInterval(interval);
+    const interval = setInterval(ping, 5000); // 5 seconds to reduce writes
+    
+    // Also clean up when window closes
+    const cleanup = () => {
+       const userRef = doc(db, 'activeUsers', currentUser.id);
+       deleteDoc(userRef).catch(() => {});
+    };
+    window.addEventListener('beforeunload', cleanup);
+    
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('beforeunload', cleanup);
+    };
   }, [currentUser, activeMode]);
 
   // Clean up when leaving
   const handleLogout = async () => {
     if (currentUser) {
       try {
-        await fetch('/api/active_users/leave', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: currentUser.id })
-        });
+        const userRef = doc(db, 'activeUsers', currentUser.id);
+        await deleteDoc(userRef);
       } catch (e) {}
     }
     setCurrentUser(null);
@@ -61,14 +71,11 @@ export default function App() {
         mode: activeMode,
         score,
         date: new Date().toISOString(),
+        timestamp: Date.now()
       };
       
       try {
-        await fetch('/api/scores', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(entry)
-        });
+        await setDoc(doc(db, 'scores', entry.id), entry);
       } catch (e) {
         console.error("Save score failed", e);
       }

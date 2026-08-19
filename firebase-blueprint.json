@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "Score": {
+      "title": "Score",
+      "description": "User game score",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "userName": { "type": "string", "maxLength": 100 },
+        "mode": { "type": "string", "enum": ["mouse", "keyboard"] },
+        "score": { "type": "number" },
+        "date": { "type": "string", "maxLength": 50 },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["userId", "userName", "mode", "score", "date", "timestamp"]
+    },
+    "ActiveUser": {
+      "title": "ActiveUser",
+      "description": "Currently active user",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "game": { "type": "string", "maxLength": 100 },
+        "startTime": { "type": "string", "maxLength": 50 },
+        "lastSeen": { "type": "string", "maxLength": 50 },
+        "timestamp": { "type": "number" }
+      },
+      "required": ["id", "name", "game", "startTime", "lastSeen", "timestamp"]
+    }
+  },
+  "firestore": {
+    "scores/{scoreId}": {
+      "schema": { "$ref": "#/entities/Score" },
+      "description": "Store all user scores."
+    },
+    "activeUsers/{userId}": {
+      "schema": { "$ref": "#/entities/ActiveUser" },
+      "description": "Store presence of active users."
+    }
+  }
+}

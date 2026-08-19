@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) { 
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
+    }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    function isValidScore(data) {
+      return data.keys().hasAll(['userId', 'userName', 'mode', 'score', 'date', 'timestamp']) &&
+             data.keys().size() == 6 &&
+             data.userId is string && data.userId.size() <= 128 &&
+             data.userName is string && data.userName.size() <= 100 &&
+             data.mode is string && data.mode.size() <= 20 &&
+             data.score is number &&
+             data.date is string && data.date.size() <= 50 &&
+             data.timestamp is number;
+    }
+
+    function isValidActiveUser(data) {
+      return data.keys().hasAll(['id', 'name', 'game', 'startTime', 'lastSeen', 'timestamp']) &&
+             data.keys().size() == 6 &&
+             data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() <= 100 &&
+             data.game is string && data.game.size() <= 100 &&
+             data.startTime is string && data.startTime.size() <= 50 &&
+             data.lastSeen is string && data.lastSeen.size() <= 50 &&
+             data.timestamp is number;
+    }
+
+    match /scores/{scoreId} {
+      allow read: if true;
+      allow create: if isValidId(scoreId) && isValidScore(incoming());
+      allow update, delete: if false; // Scores are immutable
+    }
+
+    match /activeUsers/{userId} {
+      allow read: if true;
+      allow create: if isValidId(userId) && isValidActiveUser(incoming());
+      allow update: if isValidId(userId) && isValidActiveUser(incoming());
+      allow delete: if isValidId(userId); // Anyone can cleanup inactive users in this simple app
+    }
+  }
+}

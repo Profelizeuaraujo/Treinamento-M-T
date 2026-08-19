@@ -1,15 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { ArrowLeft, Users, History, Activity } from 'lucide-react';
-import { ScoreEntry } from '../types';
-
-interface ActiveUser {
-  id: string;
-  name: string;
-  game: string;
-  startTime: string;
-  lastSeen: string;
-}
+import { ScoreEntry, ActiveUser } from '../types';
+import { db } from '../lib/firebase';
+import { collection, onSnapshot, query, orderBy, limit } from 'firebase/firestore';
 
 interface AdminDashboardProps {
   onBack: () => void;
@@ -20,23 +14,35 @@ export function AdminDashboard({ onBack }: AdminDashboardProps) {
   const [scores, setScores] = useState<ScoreEntry[]>([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const usersRes = await fetch('/api/active_users');
-        const users = await usersRes.json();
-        setActiveUsers(users);
+    // Listen to active users
+    const qUsers = collection(db, 'activeUsers');
+    const unsubscribeUsers = onSnapshot(qUsers, (snapshot) => {
+      const users: ActiveUser[] = [];
+      const now = Date.now();
+      snapshot.forEach(doc => {
+        const data = doc.data() as ActiveUser;
+        // Only show users active within the last 15 seconds
+        if (now - (data.timestamp || 0) < 15000) {
+          users.push(data);
+        }
+      });
+      setActiveUsers(users);
+    });
 
-        const scoresRes = await fetch('/api/scores');
-        const scoresData = await scoresRes.json();
-        setScores(scoresData);
-      } catch (e) {
-        console.error("Failed to fetch dashboard data", e);
-      }
+    // Listen to scores
+    const qScores = query(collection(db, 'scores'), orderBy('score', 'desc'), limit(100));
+    const unsubscribeScores = onSnapshot(qScores, (snapshot) => {
+      const newScores: ScoreEntry[] = [];
+      snapshot.forEach(doc => {
+        newScores.push(doc.data() as ScoreEntry);
+      });
+      setScores(newScores);
+    });
+
+    return () => {
+      unsubscribeUsers();
+      unsubscribeScores();
     };
-
-    fetchData();
-    const interval = setInterval(fetchData, 3000);
-    return () => clearInterval(interval);
   }, []);
 
   const getDuration = (startTime: string) => {
