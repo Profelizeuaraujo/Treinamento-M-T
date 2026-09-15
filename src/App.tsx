@@ -3,11 +3,12 @@ import { Identification } from './components/Identification';
 import { Selection } from './components/Selection';
 import { MouseGame } from './components/MouseGame';
 import { KeyboardGame } from './components/KeyboardGame';
+import { DragGame } from './components/DragGame';
 import { AdminDashboard } from './components/AdminDashboard';
 import { User, GameMode, ScoreEntry } from './types';
 import { LogOut } from 'lucide-react';
 import { db } from './lib/firebase';
-import { doc, setDoc, deleteDoc, collection, addDoc } from 'firebase/firestore';
+import { doc, setDoc, deleteDoc } from 'firebase/firestore';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -21,10 +22,16 @@ export default function App() {
     const ping = async () => {
       try {
         const userRef = doc(db, 'activeUsers', currentUser.id);
+        
+        let gameName = 'Selecionando Jogo';
+        if (activeMode === 'mouse') gameName = 'Treino de Mouse';
+        if (activeMode === 'keyboard') gameName = 'Treino de Teclado';
+        if (activeMode === 'drag') gameName = 'Treino de Arrastar';
+        
         await setDoc(userRef, {
           id: currentUser.id,
           name: currentUser.name,
-          game: activeMode === 'mouse' ? 'Treino de Mouse' : activeMode === 'keyboard' ? 'Treino de Teclado' : 'Selecionando Jogo',
+          game: gameName,
           startTime: new Date().toISOString(), // In a real app we'd keep the original start time
           lastSeen: new Date().toISOString(),
           timestamp: Date.now()
@@ -149,8 +156,13 @@ export default function App() {
             onBack={() => setActiveMode(null)} 
             onSaveScore={handleSaveScore} 
           />
-        ) : (
+        ) : activeMode === 'keyboard' ? (
           <KeyboardGame 
+            onBack={() => setActiveMode(null)} 
+            onSaveScore={handleSaveScore} 
+          />
+        ) : (
+          <DragGame 
             onBack={() => setActiveMode(null)} 
             onSaveScore={handleSaveScore} 
           />

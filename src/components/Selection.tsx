@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { MousePointer2, Keyboard } from 'lucide-react';
+import { MousePointer2, Keyboard, Hand } from 'lucide-react';
 import { GameMode } from '../types';
 
 interface SelectionProps {
@@ -23,34 +23,49 @@ export function Selection({ userName, onSelect }: SelectionProps) {
         O que você gostaria de treinar hoje?
       </p>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
         <button
           onClick={() => onSelect('mouse')}
-          className="group flex flex-col items-center justify-center p-12 bg-white border-4 border-emerald-500 rounded-3xl hover:bg-emerald-50 transition-all active:scale-95 shadow-lg hover:shadow-xl"
+          className="group flex flex-col items-center justify-center p-8 bg-white border-4 border-emerald-500 rounded-3xl hover:bg-emerald-50 transition-all active:scale-95 shadow-lg hover:shadow-xl"
         >
-          <div className="w-32 h-32 bg-emerald-100 rounded-full flex items-center justify-center mb-8 group-hover:bg-emerald-200 transition-colors">
-            <MousePointer2 size={64} className="text-emerald-700" />
+          <div className="w-24 h-24 bg-emerald-100 rounded-full flex items-center justify-center mb-6 group-hover:bg-emerald-200 transition-colors">
+            <MousePointer2 size={48} className="text-emerald-700" />
           </div>
-          <span className="text-4xl font-bold text-emerald-800">
-            Treinar o Mouse
+          <span className="text-2xl font-bold text-emerald-800 text-center">
+            Clicar
           </span>
-          <span className="text-xl text-emerald-600 mt-4 font-medium">
+          <span className="text-lg text-emerald-600 mt-2 font-medium text-center">
             Jogo das Bolinhas
           </span>
         </button>
 
         <button
-          onClick={() => onSelect('keyboard')}
-          className="group flex flex-col items-center justify-center p-12 bg-white border-4 border-indigo-500 rounded-3xl hover:bg-indigo-50 transition-all active:scale-95 shadow-lg hover:shadow-xl"
+          onClick={() => onSelect('drag')}
+          className="group flex flex-col items-center justify-center p-8 bg-white border-4 border-amber-500 rounded-3xl hover:bg-amber-50 transition-all active:scale-95 shadow-lg hover:shadow-xl"
         >
-          <div className="w-32 h-32 bg-indigo-100 rounded-full flex items-center justify-center mb-8 group-hover:bg-indigo-200 transition-colors">
-            <Keyboard size={64} className="text-indigo-700" />
+          <div className="w-24 h-24 bg-amber-100 rounded-full flex items-center justify-center mb-6 group-hover:bg-amber-200 transition-colors">
+            <Hand size={48} className="text-amber-700" />
           </div>
-          <span className="text-4xl font-bold text-indigo-800">
-            Treinar o Teclado
+          <span className="text-2xl font-bold text-amber-800 text-center">
+            Arrastar e Soltar
           </span>
-          <span className="text-xl text-indigo-600 mt-4 font-medium">
-            Jogo de Digitação
+          <span className="text-lg text-amber-600 mt-2 font-medium text-center">
+            Caça Palavras
+          </span>
+        </button>
+
+        <button
+          onClick={() => onSelect('keyboard')}
+          className="group flex flex-col items-center justify-center p-8 bg-white border-4 border-indigo-500 rounded-3xl hover:bg-indigo-50 transition-all active:scale-95 shadow-lg hover:shadow-xl"
+        >
+          <div className="w-24 h-24 bg-indigo-100 rounded-full flex items-center justify-center mb-6 group-hover:bg-indigo-200 transition-colors">
+            <Keyboard size={48} className="text-indigo-700" />
+          </div>
+          <span className="text-2xl font-bold text-indigo-800 text-center">
+            Digitar
+          </span>
+          <span className="text-lg text-indigo-600 mt-2 font-medium text-center">
+            Queda de Letras
           </span>
         </button>
       </div>

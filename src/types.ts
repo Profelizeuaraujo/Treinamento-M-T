@@ -1,4 +1,4 @@
-export type GameMode = 'mouse' | 'keyboard' | null;
+export type GameMode = 'mouse' | 'keyboard' | 'drag' | null;
 
 export interface User {
   id: string;
@@ -9,7 +9,7 @@ export interface ScoreEntry {
   id: string;
   userId: string;
   userName: string;
-  mode: 'mouse' | 'keyboard';
+  mode: 'mouse' | 'keyboard' | 'drag';
   score: number;
   date: string;
   timestamp?: number;
