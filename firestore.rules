@@ -13,8 +13,9 @@ service cloud.firestore {
     function existing() { return resource.data; }
 
     function isValidScore(data) {
-      return data.keys().hasAll(['userId', 'userName', 'mode', 'score', 'date', 'timestamp']) &&
-             data.keys().size() == 6 &&
+      return data.keys().hasAll(['id', 'userId', 'userName', 'mode', 'score', 'date', 'timestamp']) &&
+             data.keys().size() == 7 &&
+             data.id is string && data.id.size() <= 128 &&
              data.userId is string && data.userId.size() <= 128 &&
              data.userName is string && data.userName.size() <= 100 &&
              data.mode is string && data.mode.size() <= 20 &&

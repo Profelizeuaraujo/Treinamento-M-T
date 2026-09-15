@@ -27,6 +27,8 @@ export function AdminDashboard({ onBack }: AdminDashboardProps) {
         }
       });
       setActiveUsers(users);
+    }, (error) => {
+      console.error("Error fetching active users:", error);
     });
 
     // Listen to scores
@@ -37,6 +39,8 @@ export function AdminDashboard({ onBack }: AdminDashboardProps) {
         newScores.push(doc.data() as ScoreEntry);
       });
       setScores(newScores);
+    }, (error) => {
+      console.error("Error fetching scores:", error);
     });
 
     return () => {

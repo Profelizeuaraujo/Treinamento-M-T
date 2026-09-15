@@ -5,6 +5,7 @@
       "description": "User game score",
       "type": "object",
       "properties": {
+        "id": { "type": "string", "maxLength": 128 },
         "userId": { "type": "string", "maxLength": 128 },
         "userName": { "type": "string", "maxLength": 100 },
         "mode": { "type": "string", "enum": ["mouse", "keyboard"] },
@@ -12,7 +13,7 @@
         "date": { "type": "string", "maxLength": 50 },
         "timestamp": { "type": "number" }
       },
-      "required": ["userId", "userName", "mode", "score", "date", "timestamp"]
+      "required": ["id", "userId", "userName", "mode", "score", "date", "timestamp"]
     },
     "ActiveUser": {
       "title": "ActiveUser",
